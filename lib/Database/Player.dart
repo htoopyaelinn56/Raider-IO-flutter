@@ -12,6 +12,10 @@ class Player {
   final String spec;
   @ColumnInfo(name: 'io')
   final double io;
+  @ColumnInfo(name: 'region')
+  final String region;
+  @ColumnInfo(name: 'realm')
+  final String realm;
 
   Player({
     this.id,
@@ -19,5 +23,7 @@ class Player {
     required this.cls,
     required this.spec,
     required this.io,
+    required this.realm,
+    required this.region,
   });
 }

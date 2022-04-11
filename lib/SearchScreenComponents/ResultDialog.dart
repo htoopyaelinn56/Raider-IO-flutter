@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:raider_io_flutter/Database/Player.dart';
 import 'package:raider_io_flutter/SomeFunctions.dart';
 import 'package:provider/provider.dart';
-import 'package:raider_io_flutter/DataModel/character.dart';
 import '../ProviderData/RioData.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -91,26 +92,40 @@ class ResultDialogRio extends StatelessWidget {
                 MaterialStateProperty.all<Color>(const Color(0xFF0A0E21)),
           ),
           child: const Icon(Icons.save),
-          onPressed: () {
-            for (var i
-                in Provider.of<RioData>(context, listen: false).charList) {
-              print(i.name);
-            }
-            Character c = Character(
+          onPressed: () async {
+            Player p = Player(
               name: result['name'],
               cls: result['class'],
               spec: result['active_spec_name'],
               io: result['mythic_plus_scores']['all'].toDouble(),
+              region: result['region'],
+              realm: result['realm'],
             );
-            bool isContain = Provider.of<RioData>(context, listen: false)
-                .checkCharacterInList(c);
-            if (isContain == false) {
-              Provider.of<RioData>(context, listen: false).addToCharList(c);
+            bool isContain = await Provider.of<RioData>(context, listen: false)
+                .checkCharacterInData(p);
+            bool needToUpdate = false;
+            if (!isContain) {
+              await Provider.of<RioData>(context, listen: false)
+                  .addToCharList(p);
+            } else if (isContain) {
+              for (var i
+                  in await GetIt.instance.get<RioData>().getPlayerList()) {
+                if (i.name == p.name && i.io != p.io) {
+                  GetIt.instance
+                      .get<RioData>()
+                      .updatePlayer(p.io, p.spec, p.name);
+                  needToUpdate = true;
+                } else if (i.name == p.name && i.io == p.io) {
+                  needToUpdate = false;
+                }
+              }
             }
-            Navigator.of(context).pop();
             showToast(isContain
-                ? 'Character already exists!'
+                ? needToUpdate
+                    ? 'Updated!'
+                    : 'Character already exists!'
                 : 'Added Successfully!');
+            Navigator.of(context).pop();
           },
         ),
         Container(
@@ -121,7 +136,7 @@ class ResultDialogRio extends StatelessWidget {
                   MaterialStateProperty.all<Color>(const Color(0xFF0A0E21)),
             ),
             child: const Icon(Icons.check),
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
             },
           ),

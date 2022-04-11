@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:raider_io_flutter/Database/PlayerDao.dart';
 import 'package:raider_io_flutter/Screens/search_screen.dart';
 import 'package:raider_io_flutter/Screens/saved_data_screen.dart';
+import 'package:raider_io_flutter/SomeFunctions.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -19,9 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Raider IO'),
-      ),
       body: _pageList.elementAt(_currentNavBottomItem),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.indigo.shade500,

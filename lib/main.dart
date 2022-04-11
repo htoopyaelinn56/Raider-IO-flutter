@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:raider_io_flutter/Database/Player.dart';
 import 'package:raider_io_flutter/Database/PlayerDao.dart';
 import 'package:raider_io_flutter/Database/db.dart';
 import 'package:raider_io_flutter/home.dart';
@@ -6,7 +7,17 @@ import 'package:provider/provider.dart';
 import 'ProviderData/RioData.dart';
 import 'package:get_it/get_it.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  GetIt getIt = GetIt.instance;
+  getIt.registerSingletonAsync<AppDatabase>(
+      () async => $FloorAppDatabase.databaseBuilder('demo.db').build());
+  getIt.registerSingletonWithDependencies<PlayerDao>(() {
+    return GetIt.instance.get<AppDatabase>().playerDao;
+  }, dependsOn: [AppDatabase]);
+  getIt.registerSingletonWithDependencies<RioData>(() => RioData(),
+      dependsOn: [AppDatabase, PlayerDao]);
+  await getIt.allReady();
   runApp(MyApp());
 }
 

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get_it/get_it.dart';
+import 'ProviderData/RioData.dart';
+import 'Network/RioApi.dart';
 
 Color getIoColor(double value) {
   if (value < 500.0) {
@@ -7,7 +10,7 @@ Color getIoColor(double value) {
   } else if (value > 2500.0) {
     return Colors.deepOrangeAccent;
   } else if (value > 2000.0) {
-    return Colors.deepPurple;
+    return Color(0xffA330C9);
   } else if (value > 1000.0) {
     return const Color(0xff2962ff);
   } else if (value > 500) {
@@ -68,9 +71,8 @@ void showToast(String s) {
   Fluttertoast.showToast(
       msg: s,
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 1,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
       fontSize: 16.0);
 }

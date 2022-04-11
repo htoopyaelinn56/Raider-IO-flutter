@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
-import 'package:raider_io_flutter/DataModel/character.dart';
+import 'package:get_it/get_it.dart';
 import '../Database/db.dart';
 import '../Database/PlayerDao.dart';
 import '../Database/Player.dart';
 
 class RioData extends ChangeNotifier {
-  PlayerDao? dao;
-
-  RioData({this.dao});
-
+  late PlayerDao _dao;
+  RioData() {
+    _dao = GetIt.instance.get<PlayerDao>();
+  }
   bool nameError = false;
   bool realmError = false;
 
@@ -49,17 +49,33 @@ class RioData extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Character> charList = [];
-
-  void addToCharList(Character c) {
-    charList.add(c);
+  Future<void> addToCharList(Player p) async {
+    _dao.insertPlayer(p);
     notifyListeners();
   }
 
-  bool checkCharacterInList(Character c) {
-    for (var i in charList) {
-      if (i.name == c.name) return true;
+  Stream<List<Player>> getPlayerStream() {
+    return _dao.findAllPlayerByStream();
+  }
+
+  Future<bool> checkCharacterInData(Player p) async {
+    for (var i in await _dao.findAllPlayer()) {
+      if (i.name == p.name) return true;
     }
     return false;
+  }
+
+  Future<List<Player>> getPlayerList() async {
+    return await _dao.findAllPlayer();
+  }
+
+  Future<void> deletePlayer(Player p) async {
+    await _dao.deletePlayer(p);
+    notifyListeners();
+  }
+
+  Future<void> updatePlayer(double io, String spec, String name) async {
+    await _dao.updatePlayer(io, spec, name);
+    notifyListeners();
   }
 }
