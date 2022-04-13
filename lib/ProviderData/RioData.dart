@@ -78,4 +78,16 @@ class RioData extends ChangeNotifier {
     await _dao.updatePlayer(io, spec, name);
     notifyListeners();
   }
+
+  bool updatingData = false;
+
+  void onUpdating() {
+    updatingData = true;
+    notifyListeners();
+  }
+
+  void updateDone() {
+    updatingData = false;
+    notifyListeners();
+  }
 }

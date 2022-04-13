@@ -67,23 +67,25 @@ class ResultDialogRio extends StatelessWidget {
               )
             ],
           )),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          resultRow(
-              'IO',
-              '${result['mythic_plus_scores']['all']}',
-              getIoColor(double.parse(
-                  result['mythic_plus_scores']['all'].toString()))),
-          resultRow('Faction', '${result['faction']}',
-              getFactinColor(result['faction'].toString())),
-          resultRow('ilvl', '${result['gear']['item_level_equipped']}'),
-          resultRow('SOFO Prog',
-              '${result['raid_progression']['sepulcher-of-the-first-ones']['summary']}'),
-          resultRow('Achievements', '${result['achievement_points']}'),
-          resultRow('Last online',
-              result['last_crawled_at'].toString().substring(0, 10)),
-        ], //raid_progression['sepulcher-of-the-first-ones']
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            resultRow(
+                'IO',
+                '${result['mythic_plus_scores']['all']}',
+                getIoColor(double.parse(
+                    result['mythic_plus_scores']['all'].toString()))),
+            resultRow('Faction', '${result['faction']}',
+                getFactinColor(result['faction'].toString())),
+            resultRow('ilvl', '${result['gear']['item_level_equipped']}'),
+            resultRow('SOFO Prog',
+                '${result['raid_progression']['sepulcher-of-the-first-ones']['summary']}'),
+            resultRow('Achievements', '${result['achievement_points']}'),
+            resultRow('Last online',
+                result['last_crawled_at'].toString().substring(0, 10)),
+          ], //raid_progression['sepulcher-of-the-first-ones']
+        ),
       ),
       actions: <Widget>[
         ElevatedButton(

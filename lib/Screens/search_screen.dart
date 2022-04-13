@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:raider_io_flutter/ProviderData/RioData.dart';
+import 'package:raider_io_flutter/SomeFunctions.dart';
 import '../SearchScreenComponents/RadioButtonsRegions.dart';
 import '../SearchScreenComponents/RioTextField.dart';
 import 'package:raider_io_flutter/Network/RioApi.dart';
@@ -20,31 +23,36 @@ class SearchScreen extends StatelessWidget {
     bool nameError = providerItem.nameError;
     bool realmError = providerItem.realmError;
     String currentRegion = providerItem.currentRegion;
-    if (nameError == false && realmError == false) {
+    if (!nameError && !realmError) {
       providerItem.searching();
-      dynamic result = await RioApi(
-              name: nameController.text,
-              realm: realmController.text,
-              region: currentRegion)
-          .getData();
-      providerItem.searchDone();
-      if (result == 404) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return const ErrorDialogRio();
-          },
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ResultDialogRio(result: result);
-          },
-        );
+      try {
+        dynamic result = await RioApi(
+                name: nameController.text,
+                realm: realmController.text,
+                region: currentRegion)
+            .getData();
+        providerItem.searchDone();
+        if (result == 404) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const ErrorDialogRio();
+            },
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ResultDialogRio(result: result);
+            },
+          );
+        }
+        nameController.text = '';
+        realmController.text = '';
+      } on IOException catch (e) {
+        providerItem.searchDone();
+        showToast('No internet connection!');
       }
-      nameController.text = '';
-      realmController.text = '';
     }
   }
 
@@ -60,58 +68,62 @@ class SearchScreen extends StatelessWidget {
         ),
         color: const Color(0xFF0A0E21),
         inAsyncCall: Provider.of<RioData>(context).searchingRio,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              RioTextField(
-                controller: nameController,
-                errorText: 'Name is empty!',
-                hintText: 'Enter character name.',
-                error: Provider.of<RioData>(context).nameError,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              RioTextField(
-                controller: realmController,
-                errorText: 'Realm is empty',
-                hintText: 'Enter realm name.',
-                error: Provider.of<RioData>(context).realmError,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              RegionRadioButtons(),
-              SizedBox(
-                width: 110.0,
-                child: ElevatedButton(
-                  onPressed: () {
-                    searchAction(context);
-                  },
-                  child: const Text(
-                    'Search',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w500,
-                    ),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RioTextField(
+                    controller: nameController,
+                    errorText: 'Name is empty!',
+                    hintText: 'Enter character name.',
+                    error: Provider.of<RioData>(context).nameError,
                   ),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.indigo.shade900),
-                    shape: MaterialStateProperty.all<OutlinedBorder>(
-                      const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  RioTextField(
+                    controller: realmController,
+                    errorText: 'Realm is empty',
+                    hintText: 'Enter realm name.',
+                    error: Provider.of<RioData>(context).realmError,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  RegionRadioButtons(),
+                  SizedBox(
+                    width: 110.0,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        searchAction(context);
+                      },
+                      child: const Text(
+                        'Search',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.indigo.shade900),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

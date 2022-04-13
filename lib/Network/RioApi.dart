@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -17,10 +19,14 @@ class RioApi {
     String api =
         'https://raider.io/api/v1/characters/profile?region=$region&realm=$realm&name=$name$fields';
     http.Response response = await http.get(Uri.parse(api));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return 404;
+    try {
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return 404;
+      }
+    } on IOException catch (e) {
+      print(e); //network error
     }
   }
 }

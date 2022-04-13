@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -8,20 +10,14 @@ import 'package:raider_io_flutter/SomeFunctions.dart';
 import '../Database/Player.dart';
 import 'package:raider_io_flutter/Network/RioApi.dart';
 
-class SavedData extends StatefulWidget {
-  @override
-  State<SavedData> createState() => _SavedDataState();
-}
-
-class _SavedDataState extends State<SavedData> {
-  bool updating = false;
+class SavedData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       progressIndicator: const CircularProgressIndicator(
         strokeWidth: 5.0,
       ),
-      inAsyncCall: updating,
+      inAsyncCall: Provider.of<RioData>(context).updatingData,
       color: const Color(0xFF0A0E21),
       child: Scaffold(
         appBar: AppBar(
@@ -32,22 +28,24 @@ class _SavedDataState extends State<SavedData> {
               child: IconButton(
                 icon: const Icon(Icons.sync),
                 onPressed: () async {
-                  setState(() {
-                    updating = true;
-                  });
-                  for (var i
-                      in await GetIt.instance.get<RioData>().getPlayerList()) {
-                    var data = await RioApi(
-                            name: i.name, region: i.region, realm: i.realm)
-                        .getData();
-                    await GetIt.instance.get<RioData>().updatePlayer(
-                        data['mythic_plus_scores']['all'].toDouble(),
-                        data['active_spec_name'],
-                        i.name);
+                  Provider.of<RioData>(context, listen: false).onUpdating();
+                  try {
+                    for (var i in await GetIt.instance
+                        .get<RioData>()
+                        .getPlayerList()) {
+                      var data = await RioApi(
+                              name: i.name, region: i.region, realm: i.realm)
+                          .getData();
+                      await GetIt.instance.get<RioData>().updatePlayer(
+                          data['mythic_plus_scores']['all'].toDouble(),
+                          data['active_spec_name'],
+                          i.name);
+                    }
+                  } on IOException catch (e) {
+                    Provider.of<RioData>(context, listen: false).updateDone();
+                    showToast('No internet connection!');
                   }
-                  setState(() {
-                    updating = false;
-                  });
+                  Provider.of<RioData>(context, listen: false).updateDone();
                 },
               ),
             )
